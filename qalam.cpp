@@ -2,13 +2,20 @@
 #include <fstream>
 #include <string>
 
+#include "lexer.hpp"
+
+class Statement
+{
+};
+
+
 void error(std::string error)
 {
     std::cerr << "ERROR: " << error << std::endl;
     exit(1);
 }
 
-int definition_statements(std::string& line)
+int definition_statements(Lexer& lex)
 {
     //DEFSTATEMENT -> identifier DEFINITION
 
@@ -17,7 +24,7 @@ int definition_statements(std::string& line)
 int main()
 {
     std::ifstream qalamInput;
-    qalamInput.open("filename.qlm");
+    qalamInput.open("test.qlm");
     if (qalamInput.is_open())
     {
         std::string line;
@@ -30,9 +37,9 @@ int main()
         while(line != "circut:")
         {
             std::getline(qalamInput, line);
-            definition_statements(line);
+            Lexer lex(line);
+            //definition_statements(lex);
         }
-
     }
     else
     {
