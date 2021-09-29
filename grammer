@@ -1,0 +1,19 @@
+DEFINITIONS GRAMMER
+
+start -> "given:" {DEFSTATEMENT} "circut:" {STATEMENT}
+
+DEFSTATEMENT -> identifier DEFINITION
+
+DEFINITION -> ':' number INIT_QBIT
+              | '<-' number "=" GATEBODY       
+
+GATEBODY -> '{' {STATEMENT} '}'
+
+INIT_QBIT -> "=" qbit_literal
+             | epcilon
+
+
+STATEMENT -> identifier "->" identifier NEXTGATE
+
+NEXTGATE -> "->" STATEMENT
+            | epcilon
