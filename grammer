@@ -2,7 +2,7 @@ DEFINITIONS GRAMMER
 
 start -> "given:" {DEFSTATEMENT} "circut:" {STATEMENT}
 
-DEFSTATEMENT -> identifier DEFINITION
+DEFSTATEMENT -> identifier DEFINITION;
 
 DEFINITION -> ':' number INIT_QBIT
               | '<-' number "=" GATEBODY       

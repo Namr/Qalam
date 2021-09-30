@@ -77,13 +77,14 @@ fullRStr("(;)|(=)|(:)|(->)|(<-)|(\\{)|(\\})|([a-zA-Z]([a-zA-Z]|[0-9])*)|([0-9]+)
     {
         std::cout << tokenToString(t) << " ";
     }
+    std::cout << std::endl;
 }
 
 //see what the next token is
 Token Lexer::peek()
 {
     if(index < tokens.size() && index >= 0)
-        return tokens[index+1];
+        return tokens[index];
     else
         return ERROR;
 }
@@ -91,6 +92,7 @@ Token Lexer::peek()
 //consume the next token
 Token Lexer::next()
 {
+    Token p = peek();
     index++;
-    return peek();
+    return p;
 }

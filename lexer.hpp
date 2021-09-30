@@ -26,7 +26,6 @@ class Lexer
 {
 private:
     std::vector<Token> tokens;
-    int index;
 
     const std::regex idRStr, numRStr,
         eqRStr, colRStr, faRStr, semicolRStr,
@@ -36,6 +35,8 @@ public:
     Lexer(std::string input);
     Token peek();
     Token next();
+
+    int index;
 };
 
 #endif
