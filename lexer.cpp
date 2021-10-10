@@ -23,7 +23,6 @@ std::string tokenToString(Token t)
     case SemiColon:
         return ";";
     case ERROR:
-        return "ERROR";
     default:
         return "ERROR";
     }
@@ -51,48 +50,48 @@ fullRStr("(;)|(=)|(:)|(->)|(<-)|(\\{)|(\\})|([a-zA-Z]([a-zA-Z]|[0-9])*)|([0-9]+)
     {
         //add the right token into the list of tokens
         if(std::regex_match(sm[0].str(), idRStr))
-            tokens.push_back(Identifier);
+            tokens.push_back(LexItem(Identifier, sm[0].str()));
         else if(std::regex_match(sm[0].str(), numRStr))
-            tokens.push_back(Number);
+            tokens.push_back(LexItem(Number, sm[0].str()));
         else if(std::regex_match(sm[0].str(), eqRStr))
-            tokens.push_back(Equals);
+            tokens.push_back(LexItem(Equals, sm[0].str()));
         else if(std::regex_match(sm[0].str(), colRStr))
-            tokens.push_back(Colon);
+            tokens.push_back(LexItem(Colon, sm[0].str()));
         else if(std::regex_match(sm[0].str(), faRStr))
-            tokens.push_back(ForwardArrow);
+            tokens.push_back(LexItem(ForwardArrow, sm[0].str()));
         else if(std::regex_match(sm[0].str(), baRStr))
-            tokens.push_back(BackArrow);
+            tokens.push_back(LexItem(BackArrow, sm[0].str()));
         else if(std::regex_match(sm[0].str(), obRStr))
-            tokens.push_back(OpenBody);
+            tokens.push_back(LexItem(OpenBody, sm[0].str()));
         else if(std::regex_match(sm[0].str(), cbRStr))
-            tokens.push_back(CloseBody);
+            tokens.push_back(LexItem(CloseBody, sm[0].str()));
         else if(std::regex_match(sm[0].str(), semicolRStr))
-            tokens.push_back(SemiColon);
+            tokens.push_back(LexItem(SemiColon, sm[0].str()));
 
         //move to the character after the end of the match in the string
         searchStart = sm.suffix().first;
     }
 
-    for(Token t : tokens)
+    for(LexItem it : tokens)
     {
-        std::cout << tokenToString(t) << " ";
+        std::cout << tokenToString(it.t) << " ";
     }
     std::cout << std::endl;
 }
 
 //see what the next token is
-Token Lexer::peek()
+LexItem Lexer::peek()
 {
     if(index < tokens.size() && index >= 0)
         return tokens[index];
     else
-        return ERROR;
+        return LexItem(ERROR, "");
 }
 
 //consume the next token
-Token Lexer::next()
+LexItem Lexer::next()
 {
-    Token p = peek();
+    LexItem p = peek();
     index++;
     return p;
 }

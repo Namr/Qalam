@@ -1,12 +1,12 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 
 #include "lexer.hpp"
+#include "ast.hpp"
 
-class Statement
-{
-};
+std::vector<Variable> g_variables;
 
 void error(std::string error)
 {
@@ -14,27 +14,31 @@ void error(std::string error)
     exit(1);
 }
 
-void match(Lexer &lex, Token t)
+std::string match(Lexer &lex, Token t)
 {
-    if (lex.next() != t)
+    LexItem n = lex.next();
+    if (n.t != t)
     {
         error("Expected " + tokenToString(t) + " at position " + std::to_string(lex.index));
+        return "";
     }
+
+    return n.str;
 }
 
-void nextgate(Lexer &lex)
+void nextGate(Lexer &lex)
 {
     /*
     NEXTGATE -> "->" identifier NEXTGATE;
             | ;
     */
-    if (lex.peek() == ForwardArrow)
+    if (lex.peek().t == ForwardArrow)
     {
         match(lex, ForwardArrow);
         match(lex, Identifier);
-        nextgate(lex);
+        nextGate(lex);
     }
-    else if (lex.peek() == SemiColon)
+    else if (lex.peek().t == SemiColon)
     {
         match(lex, SemiColon);
     }
@@ -47,10 +51,45 @@ void nextgate(Lexer &lex)
 void statement(Lexer &lex)
 {
     //STATEMENT -> identifier "->" identifier NEXTGATE
+
+    //first identifier must be in symbol table
+    std::string varName = match(lex, Identifier);
+    match(lex, ForwardArrow);
+
+    //second must be a gate
+    std::string gateName = match(lex, Identifier);
+    nextGate(lex);
+}
+
+void gateNextGate(Lexer &lex)
+{
+    /*
+    NEXTGATE -> "->" identifier NEXTGATE;
+            | ;
+    */
+    if (lex.peek().t == ForwardArrow)
+    {
+        match(lex, ForwardArrow);
+        match(lex, Identifier);
+        gateNextGate(lex);
+    }
+    else if (lex.peek().t == SemiColon)
+    {
+        match(lex, SemiColon);
+    }
+    else
+    {
+        error("Error! Expected ;");
+    }
+}
+
+void gateStatement(Lexer &lex)
+{
+    //STATEMENT -> identifier "->" identifier NEXTGATE
     match(lex, Identifier);
     match(lex, ForwardArrow);
     match(lex, Identifier);
-    nextgate(lex);
+    gateNextGate(lex);
 }
 
 void gatebody(Lexer &lex)
@@ -58,25 +97,26 @@ void gatebody(Lexer &lex)
     //GATEBODY -> '{' {STATEMENT} '}'
 
     match(lex, OpenBody);
-    while (lex.peek() != CloseBody)
+    while (lex.peek().t != CloseBody)
     {
-        statement(lex);
+        gateStatement(lex);
     }
     match(lex, CloseBody);
 }
 
-void definition(Lexer &lex)
+void definition(Lexer &lex, std::string name)
 {
     /*
     DEFINITION -> ':' number INIT_QBIT
               | '<-' number "=" GATEBODY  
     */
-    if (lex.peek() == Colon)
+    if (lex.peek().t == Colon)
     {
         match(lex, Colon);
-        match(lex, Number);
+        std::string swidth = match(lex, Number);
+        g_variables.push_back(Variable(name, stoi(swidth)));
     }
-    else if (lex.peek() == BackArrow)
+    else if (lex.peek().t == BackArrow)
     {
         match(lex, BackArrow);
         match(lex, Number);
@@ -85,15 +125,20 @@ void definition(Lexer &lex)
     }
     else
     {
-        error("Error! bad identifier definition");
+        error("bad identifier definition");
     }
 }
 
-void definition_statements(Lexer &lex)
+void definitionStatements(Lexer &lex)
 {
     //DEFSTATEMENT -> identifier DEFINITION;
-    match(lex, Identifier);
-    definition(lex);
+    std::string name = match(lex, Identifier);
+
+    //F is a reserved keyword for use inside of functions
+    if(name[0] == 'F')
+        error("non function variables are not allowed to start with F");
+
+    definition(lex, name);
     match(lex, SemiColon);
 }
 
@@ -124,9 +169,23 @@ int main()
         Lexer lex(given_code);
 
         //LL(1) parsing
-        while (lex.peek() != ERROR)
+        while (lex.peek().t != ERROR)
         {
-            definition_statements(lex);
+            definitionStatements(lex);
+        }
+        
+        given_code = "";
+        //tokenize and parse the circut section:
+        while(std::getline(qalamInput, line))
+        {
+            given_code += line;
+        }
+
+        Lexer lex2(given_code);
+
+        while(lex.peek().t != ERROR)
+        {
+            statement(lex);
         }
     }
     else

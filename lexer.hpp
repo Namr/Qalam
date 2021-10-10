@@ -20,12 +20,23 @@ enum Token
     ERROR,
 };
 
+struct LexItem
+{
+    Token t;
+    std::string str;
+    LexItem(Token tt, std::string sstr)
+    {
+        t = tt;
+        str = sstr;
+    }
+};
+
 std::string tokenToString(Token t);
 
 class Lexer
 {
 private:
-    std::vector<Token> tokens;
+    std::vector<LexItem> tokens;
 
     const std::regex idRStr, numRStr,
         eqRStr, colRStr, faRStr, semicolRStr,
@@ -33,8 +44,8 @@ private:
 
 public:
     Lexer(std::string input);
-    Token peek();
-    Token next();
+    LexItem peek();
+    LexItem next();
 
     int index;
 };
