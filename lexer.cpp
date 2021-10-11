@@ -71,12 +71,6 @@ fullRStr("(;)|(=)|(:)|(->)|(<-)|(\\{)|(\\})|([a-zA-Z]([a-zA-Z]|[0-9])*)|([0-9]+)
         //move to the character after the end of the match in the string
         searchStart = sm.suffix().first;
     }
-
-    for(LexItem it : tokens)
-    {
-        std::cout << tokenToString(it.t) << " ";
-    }
-    std::cout << std::endl;
 }
 
 //see what the next token is

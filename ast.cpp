@@ -1,23 +1,48 @@
 #include "ast.hpp"
 
-Expression::Expression(std::string op)
+Variable::Variable(uint32_t pposition, uint32_t wwidth)
 {
-    this->value = op;
+    position = pposition;
+    width = wwidth;
 }
 
-std::ostream& operator << (std::ostream& outs, const Expression& e)
+void VariableList::push_back(std::string name, uint32_t width)
 {
-    return outs << e.value;
+    vars.insert(std::make_pair(name, Variable(nextPosition, width)));
+    nextPosition += width;
 }
 
-BinaryExpression::BinaryExpression(std::string op, Expression* first, Expression* second) : Expression(op)
+bool VariableList::exists(std::string name)
 {
-    this->first = first;
-    this->second = second;
+    return vars.find(name) != vars.end();
 }
 
-std::ostream& operator << (std::ostream& outs, const BinaryExpression& be)
+Gate::Gate(uint32_t nnumInputs)
 {
-    return outs << be.value << " " << be.first << " " << be.second;
+    numInputs = nnumInputs;
 }
 
+Gate::Gate(bool unbounded)
+{
+    unboundedInputs = unbounded;
+}
+
+GateList::GateList()
+{
+    gates.insert(std::make_pair("H", Gate(true)));
+    gates.insert(std::make_pair("X", Gate(true)));
+    gates.insert(std::make_pair("Y", Gate(true)));
+    gates.insert(std::make_pair("Z", Gate(true)));
+    gates.insert(std::make_pair("CX", Gate(true)));
+}
+
+bool GateList::exists(std::string name)
+{
+    return gates.find(name) != gates.end();
+}
+
+BinaryExpression::BinaryExpression(std::string vvar, std::string ggate)
+{
+    variable = vvar;
+    gate = ggate;
+}

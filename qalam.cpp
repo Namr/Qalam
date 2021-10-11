@@ -6,7 +6,9 @@
 #include "lexer.hpp"
 #include "ast.hpp"
 
-std::vector<Variable> g_variables;
+VariableList g_variables;
+GateList g_gates;
+std::vector<BinaryExpression> statements;
 
 void error(std::string error)
 {
@@ -26,7 +28,7 @@ std::string match(Lexer &lex, Token t)
     return n.str;
 }
 
-void nextGate(Lexer &lex)
+void nextGate(Lexer &lex, std::string varName)
 {
     /*
     NEXTGATE -> "->" identifier NEXTGATE;
@@ -35,8 +37,12 @@ void nextGate(Lexer &lex)
     if (lex.peek().t == ForwardArrow)
     {
         match(lex, ForwardArrow);
-        match(lex, Identifier);
-        nextGate(lex);
+        std::string gateName =  match(lex, Identifier);
+        if(!g_gates.exists(gateName))
+            error(gateName + " is a non-defined quantum gate");
+        
+        statements.push_back(BinaryExpression(varName, gateName));
+        nextGate(lex, varName);
     }
     else if (lex.peek().t == SemiColon)
     {
@@ -44,7 +50,7 @@ void nextGate(Lexer &lex)
     }
     else
     {
-        error("Error! Expected ;");
+        error("Expected ;");
     }
 }
 
@@ -54,11 +60,19 @@ void statement(Lexer &lex)
 
     //first identifier must be in symbol table
     std::string varName = match(lex, Identifier);
+    if(!g_variables.exists(varName))
+        error(varName + " is a variable that was never defined.");
+
     match(lex, ForwardArrow);
 
     //second must be a gate
     std::string gateName = match(lex, Identifier);
-    nextGate(lex);
+    if(!g_gates.exists(gateName))
+        error(gateName + " is an undefined quantum gate");
+
+    statements.push_back(BinaryExpression(varName, gateName));
+
+    nextGate(lex, varName);
 }
 
 void gateNextGate(Lexer &lex)
@@ -79,7 +93,7 @@ void gateNextGate(Lexer &lex)
     }
     else
     {
-        error("Error! Expected ;");
+        error("Expected ;");
     }
 }
 
@@ -114,7 +128,7 @@ void definition(Lexer &lex, std::string name)
     {
         match(lex, Colon);
         std::string swidth = match(lex, Number);
-        g_variables.push_back(Variable(name, stoi(swidth)));
+        g_variables.push_back(name, stoi(swidth));
     }
     else if (lex.peek().t == BackArrow)
     {
@@ -174,18 +188,21 @@ int main()
             definitionStatements(lex);
         }
         
-        given_code = "";
         //tokenize and parse the circut section:
+        given_code = "";    
         while(std::getline(qalamInput, line))
         {
             given_code += line;
         }
-
         Lexer lex2(given_code);
-
-        while(lex.peek().t != ERROR)
+        while(lex2.peek().t != ERROR)
         {
-            statement(lex);
+            statement(lex2);
+        }
+
+        for(BinaryExpression e : statements)
+        {
+            std::cout << e.variable << "->" << e.gate << std::endl;
         }
     }
     else
