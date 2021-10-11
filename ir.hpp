@@ -1,5 +1,5 @@
-#ifndef AST_H
-#define AST_H
+#ifndef IR_H
+#define IR_H
 
 #include <string>
 #include <iostream>
@@ -21,6 +21,7 @@ private:
 public:
     void push_back(std::string name, uint32_t width);
     bool exists(std::string name);
+    uint32_t size();
 };
 
 class Gate 

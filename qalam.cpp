@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "lexer.hpp"
-#include "ast.hpp"
+#include "ir.hpp"
 
 VariableList g_variables;
 GateList g_gates;

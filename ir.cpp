@@ -1,4 +1,4 @@
-#include "ast.hpp"
+#include "ir.hpp"
 
 Variable::Variable(uint32_t pposition, uint32_t wwidth)
 {
@@ -15,6 +15,11 @@ void VariableList::push_back(std::string name, uint32_t width)
 bool VariableList::exists(std::string name)
 {
     return vars.find(name) != vars.end();
+}
+
+uint32_t VariableList::size()
+{
+    return nextPosition + 1;
 }
 
 Gate::Gate(uint32_t nnumInputs)
