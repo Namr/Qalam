@@ -1,6 +1,6 @@
 DEFINITIONS GRAMMER
 
-start -> "given:" {DEFSTATEMENT} "circut:" {STATEMENT}
+start -> "given:" {DEFSTATEMENT} "circuit:" {STATEMENT}
 
 DEFSTATEMENT -> identifier DEFINITION;
 
@@ -20,7 +20,7 @@ NEXTGATE -> "->" STATEMENT
 
 
 
-CIRCUT GRAMMER
+circuit GRAMMER
 
 STATEMENT -> identifier SPECIFIER 
 

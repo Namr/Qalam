@@ -104,7 +104,7 @@ void specifier(Lexer &lex, Variable *var)
     }
     else
     {
-        error("invalid circut statement");
+        error("invalid circuit statement");
     }
 }
 
@@ -212,14 +212,14 @@ int main()
         std::getline(qalamInput, line);
 
         //each source file starts with a given: clause as seen in the grammer below
-        //start -> "given:" {DEFSTATEMENT} "circut:" {STATEMENT}
+        //start -> "given:" {DEFSTATEMENT} "circuit:" {STATEMENT}
         if (line != "given:")
             error("no 'given:' section of program");
 
         //turn the entire 'given:' section into a single string to be tokenized
         std::string given_code = "";
         std::getline(qalamInput, line);
-        while (line != "circut:")
+        while (line != "circuit:")
         {
             given_code += line;
             std::getline(qalamInput, line);
@@ -233,7 +233,7 @@ int main()
             definitionStatements(lex);
         }
 
-        //tokenize and parse the circut section:
+        //tokenize and parse the circuit section:
         given_code = "";
         while (std::getline(qalamInput, line))
         {
