@@ -11,14 +11,15 @@ struct Variable
     uint32_t position;
     uint32_t width;
     Variable(uint32_t pposition, uint32_t wwidth);
+    Variable();
 };
 
 class VariableList
 {
 private:
     uint32_t nextPosition = 0;
-    std::map<std::string, Variable> vars;
 public:
+    std::map<std::string, Variable> vars;
     void push_back(std::string name, uint32_t width);
     bool exists(std::string name);
     uint32_t size();

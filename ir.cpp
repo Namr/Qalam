@@ -6,6 +6,12 @@ Variable::Variable(uint32_t pposition, uint32_t wwidth)
     width = wwidth;
 }
 
+Variable::Variable()
+{
+    position = 0;
+    width = 0;
+}
+
 void VariableList::push_back(std::string name, uint32_t width)
 {
     vars.insert(std::make_pair(name, Variable(nextPosition, width)));
@@ -19,7 +25,7 @@ bool VariableList::exists(std::string name)
 
 uint32_t VariableList::size()
 {
-    return nextPosition + 1;
+    return nextPosition;
 }
 
 Gate::Gate(uint32_t nnumInputs)

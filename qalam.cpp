@@ -5,9 +5,12 @@
 
 #include "lexer.hpp"
 #include "ir.hpp"
+#include "qiskitBackend.hpp"
 
 VariableList g_variables;
 GateList g_gates;
+QiskitBackend g_backend;
+
 std::vector<BinaryExpression> statements;
 
 void error(std::string error)
@@ -200,10 +203,13 @@ int main()
             statement(lex2);
         }
 
+        //backend generation
+        g_backend = QiskitBackend(g_variables);
         for(BinaryExpression e : statements)
         {
-            std::cout << e.variable << "->" << e.gate << std::endl;
+            g_backend.addBinaryExpression(e, g_variables, g_gates);
         }
+        g_backend.printOutput();
     }
     else
     {
