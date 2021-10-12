@@ -37,8 +37,11 @@ faRStr("->", std::regex_constants::ECMAScript),
 baRStr("<-", std::regex_constants::ECMAScript),
 obRStr("\\{", std::regex_constants::ECMAScript),
 cbRStr("\\}", std::regex_constants::ECMAScript),
+commaRStr(",", std::regex_constants::ECMAScript),
+oiRStr("\\[", std::regex_constants::ECMAScript),
+ciRStr("\\]", std::regex_constants::ECMAScript),
 semicolRStr(";", std::regex_constants::ECMAScript),
-fullRStr("(;)|(=)|(:)|(->)|(<-)|(\\{)|(\\})|([a-zA-Z]([a-zA-Z]|[0-9])*)|([0-9]+)", std::regex_constants::ECMAScript)
+fullRStr("(;)|(\\[)|(\\])|(,)|(=)|(:)|(->)|(<-)|(\\{)|(\\})|([a-zA-Z]([a-zA-Z]|[0-9])*)|([0-9]+)", std::regex_constants::ECMAScript)
 {
 
     index = 0;
@@ -67,7 +70,12 @@ fullRStr("(;)|(=)|(:)|(->)|(<-)|(\\{)|(\\})|([a-zA-Z]([a-zA-Z]|[0-9])*)|([0-9]+)
             tokens.push_back(LexItem(CloseBody, sm[0].str()));
         else if(std::regex_match(sm[0].str(), semicolRStr))
             tokens.push_back(LexItem(SemiColon, sm[0].str()));
-
+        else if(std::regex_match(sm[0].str(), commaRStr))
+            tokens.push_back(LexItem(Comma, sm[0].str()));
+        else if(std::regex_match(sm[0].str(), oiRStr))
+            tokens.push_back(LexItem(OpenIndex, sm[0].str()));
+        else if(std::regex_match(sm[0].str(), ciRStr))
+            tokens.push_back(LexItem(CloseIndex, sm[0].str()));
         //move to the character after the end of the match in the string
         searchStart = sm.suffix().first;
     }

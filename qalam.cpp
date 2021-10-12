@@ -8,6 +8,7 @@
 #include "qiskitBackend.hpp"
 
 VariableList g_variables;
+std::vector<Variable> g_combinedVars;
 GateList g_gates;
 QiskitBackend g_backend;
 
@@ -31,7 +32,7 @@ std::string match(Lexer &lex, Token t)
     return n.str;
 }
 
-void nextGate(Lexer &lex, std::string varName)
+void nextGate(Lexer &lex, Variable *var)
 {
     /*
     NEXTGATE -> "->" identifier NEXTGATE;
@@ -40,12 +41,12 @@ void nextGate(Lexer &lex, std::string varName)
     if (lex.peek().t == ForwardArrow)
     {
         match(lex, ForwardArrow);
-        std::string gateName =  match(lex, Identifier);
-        if(!g_gates.exists(gateName))
+        std::string gateName = match(lex, Identifier);
+        if (!g_gates.exists(gateName))
             error(gateName + " is a non-defined quantum gate");
-        
-        statements.push_back(BinaryExpression(varName, gateName));
-        nextGate(lex, varName);
+
+        statements.push_back(BinaryExpression(var, gateName));
+        nextGate(lex, var);
     }
     else if (lex.peek().t == SemiColon)
     {
@@ -57,25 +58,66 @@ void nextGate(Lexer &lex, std::string varName)
     }
 }
 
+void specifier(Lexer &lex, Variable *var)
+{
+
+    //SPECIFIER -> "->" identifier NEXTGATE
+    //        | ,identifier SPECIFIER
+    //        | [number] SPECIFIER
+
+    if (lex.peek().t == ForwardArrow)
+    {
+        match(lex, ForwardArrow);
+
+        //second must be a gate
+        std::string gateName = match(lex, Identifier);
+        if (!g_gates.exists(gateName))
+            error(gateName + " is an undefined quantum gate");
+
+        statements.push_back(BinaryExpression(var, gateName));
+
+        nextGate(lex, var);
+    }
+    else if (lex.peek().t == Comma)
+    {
+        match(lex, Comma);
+        std::string var2Name = match(lex, Identifier);
+        if (!g_variables.exists(var2Name))
+            error(var2Name + " is a variable that was never defined.");
+
+        Variable combinedVar;
+        combinedVar.concatenate(*var);
+        combinedVar.concatenate(g_variables.vars[var2Name]);
+        g_combinedVars.push_back(combinedVar);
+        specifier(lex, &g_combinedVars[g_combinedVars.size() - 1]);
+    }
+    else if (lex.peek().t == OpenIndex)
+    {
+        match(lex, OpenIndex);
+        std::string sIndex = match(lex, Number);
+        int index = stoi(sIndex);
+
+        Variable singleVar(var->positions[0] + index, 1);
+        g_combinedVars.push_back(singleVar);
+        match(lex, CloseIndex);
+        specifier(lex, &g_combinedVars[g_combinedVars.size() - 1]);
+    }
+    else
+    {
+        error("invalid circut statement");
+    }
+}
+
 void statement(Lexer &lex)
 {
-    //STATEMENT -> identifier "->" identifier NEXTGATE
+    //STATEMENT -> identifier SPECIFIER
 
     //first identifier must be in symbol table
     std::string varName = match(lex, Identifier);
-    if(!g_variables.exists(varName))
+    if (!g_variables.exists(varName))
         error(varName + " is a variable that was never defined.");
 
-    match(lex, ForwardArrow);
-
-    //second must be a gate
-    std::string gateName = match(lex, Identifier);
-    if(!g_gates.exists(gateName))
-        error(gateName + " is an undefined quantum gate");
-
-    statements.push_back(BinaryExpression(varName, gateName));
-
-    nextGate(lex, varName);
+    specifier(lex, &g_variables.vars[varName]);
 }
 
 void gateNextGate(Lexer &lex)
@@ -152,7 +194,7 @@ void definitionStatements(Lexer &lex)
     std::string name = match(lex, Identifier);
 
     //F is a reserved keyword for use inside of functions
-    if(name[0] == 'F')
+    if (name[0] == 'F')
         error("non function variables are not allowed to start with F");
 
     definition(lex, name);
@@ -190,22 +232,22 @@ int main()
         {
             definitionStatements(lex);
         }
-        
+
         //tokenize and parse the circut section:
-        given_code = "";    
-        while(std::getline(qalamInput, line))
+        given_code = "";
+        while (std::getline(qalamInput, line))
         {
             given_code += line;
         }
         Lexer lex2(given_code);
-        while(lex2.peek().t != ERROR)
+        while (lex2.peek().t != ERROR)
         {
             statement(lex2);
         }
 
         //backend generation
         g_backend = QiskitBackend(g_variables);
-        for(BinaryExpression e : statements)
+        for (BinaryExpression e : statements)
         {
             g_backend.addBinaryExpression(e, g_variables, g_gates);
         }

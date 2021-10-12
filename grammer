@@ -17,3 +17,16 @@ STATEMENT -> identifier "->" identifier NEXTGATE
 
 NEXTGATE -> "->" STATEMENT
             | epcilon
+
+
+
+CIRCUT GRAMMER
+
+STATEMENT -> identifier SPECIFIER 
+
+SPECIFIER -> "->" identifier NEXTGATE
+            | ,identifier SPECIFIER
+            | [number] SPECIFIER
+
+NEXTGATE -> "->" STATEMENT
+            | epcilon

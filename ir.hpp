@@ -8,10 +8,11 @@
 
 struct Variable
 {
-    uint32_t position;
+    std::vector<int> positions;
     uint32_t width;
     Variable(uint32_t pposition, uint32_t wwidth);
     Variable();
+    void concatenate(Variable& other);
 };
 
 class VariableList
@@ -46,10 +47,10 @@ public:
 
 struct BinaryExpression
 {
-    std::string variable;
+    Variable* variable;
     std::string gate;
 
-    BinaryExpression(std::string vvar, std::string ggate);
+    BinaryExpression(Variable* vvar, std::string ggate);
 };
 
 #endif

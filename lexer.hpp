@@ -17,6 +17,9 @@ enum Token
     OpenBody,
     CloseBody,
     SemiColon,
+    OpenIndex,
+    CloseIndex,
+    Comma,
     ERROR,
 };
 
@@ -40,6 +43,7 @@ private:
 
     const std::regex idRStr, numRStr,
         eqRStr, colRStr, faRStr, semicolRStr,
+        commaRStr, oiRStr, ciRStr,
         baRStr, obRStr, cbRStr, fullRStr;
 
 public:
