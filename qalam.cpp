@@ -8,7 +8,6 @@
 #include "qiskitBackend.hpp"
 
 VariableList g_variables;
-std::vector<Variable> g_combinedVars;
 GateList g_gates;
 QiskitBackend g_backend;
 
@@ -32,7 +31,7 @@ std::string match(Lexer &lex, Token t)
     return n.str;
 }
 
-void nextGate(Lexer &lex, Variable *var)
+void nextGate(Lexer &lex, std::string var)
 {
     /*
     NEXTGATE -> "->" identifier NEXTGATE;
@@ -58,7 +57,7 @@ void nextGate(Lexer &lex, Variable *var)
     }
 }
 
-void specifier(Lexer &lex, Variable *var)
+void specifier(Lexer &lex, std::string var)
 {
 
     //SPECIFIER -> "->" identifier NEXTGATE
@@ -81,15 +80,20 @@ void specifier(Lexer &lex, Variable *var)
     else if (lex.peek().t == Comma)
     {
         match(lex, Comma);
-        std::string var2Name = match(lex, Identifier);
-        if (!g_variables.exists(var2Name))
-            error(var2Name + " is a variable that was never defined.");
+        std::string var2 = match(lex, Identifier);
+        if (!g_variables.exists(var2))
+            error(var2 + " is a variable that was never defined.");
 
-        Variable combinedVar;
-        combinedVar.concatenate(*var);
-        combinedVar.concatenate(g_variables.vars[var2Name]);
-        g_combinedVars.push_back(combinedVar);
-        specifier(lex, &g_combinedVars[g_combinedVars.size() - 1]);
+        std::string combinedVarName = var + var2;
+        if(!g_variables.exists(combinedVarName))
+        {
+            Variable combinedVar;
+            combinedVar.concatenate(g_variables.vars[var]);
+            combinedVar.concatenate(g_variables.vars[var2]);
+            g_variables.push_back(combinedVarName, combinedVar);
+        }
+
+        specifier(lex, combinedVarName);
     }
     else if (lex.peek().t == OpenIndex)
     {
@@ -97,10 +101,14 @@ void specifier(Lexer &lex, Variable *var)
         std::string sIndex = match(lex, Number);
         int index = stoi(sIndex);
 
-        Variable singleVar(var->positions[0] + index, 1);
-        g_combinedVars.push_back(singleVar);
+        std::string singleVarName = var + sIndex;
+        if(!g_variables.exists(singleVarName))
+        {
+            Variable singleVar(g_variables.vars[var].positions[0] + index, 1);
+            g_variables.push_back(singleVarName, singleVar);
+        }
         match(lex, CloseIndex);
-        specifier(lex, &g_combinedVars[g_combinedVars.size() - 1]);
+        specifier(lex, singleVarName);
     }
     else
     {
@@ -117,7 +125,7 @@ void statement(Lexer &lex)
     if (!g_variables.exists(varName))
         error(varName + " is a variable that was never defined.");
 
-    specifier(lex, &g_variables.vars[varName]);
+    specifier(lex, varName);
 }
 
 void gateNextGate(Lexer &lex)

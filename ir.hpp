@@ -22,6 +22,7 @@ private:
 public:
     std::map<std::string, Variable> vars;
     void push_back(std::string name, uint32_t width);
+    void push_back(std::string name, Variable var);
     bool exists(std::string name);
     uint32_t size();
 };
@@ -47,10 +48,10 @@ public:
 
 struct BinaryExpression
 {
-    Variable* variable;
+    std::string var;
     std::string gate;
 
-    BinaryExpression(Variable* vvar, std::string ggate);
+    BinaryExpression(std::string vvar, std::string ggate);
 };
 
 #endif

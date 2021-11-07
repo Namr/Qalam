@@ -21,7 +21,7 @@ void QiskitBackend::addBinaryExpression(BinaryExpression &expr, VariableList &g_
         std::string c;
         c.push_back(tolower(expr.gate[0]));
 
-        for (int p : expr.variable->positions)
+        for (int p : g_variables.vars[expr.var].positions)
         {
             pythonOutput += "qc." + c;
             pythonOutput += "(" + std::to_string(p) + ")\n";
@@ -29,15 +29,15 @@ void QiskitBackend::addBinaryExpression(BinaryExpression &expr, VariableList &g_
     }
     if (expr.gate == "CX")
     {
-        pythonOutput += "qc.append(XGate().control(" + std::to_string(expr.variable->width - 1) + "),";
+        pythonOutput += "qc.append(XGate().control(" + std::to_string(g_variables.vars[expr.var].width - 1) + "),";
         pythonOutput += "[";
 
-        for (int i = 0; i < expr.variable->positions.size() - 1; i++)
+        for (int i = 0; i < g_variables.vars[expr.var].positions.size() - 1; i++)
         {
-            pythonOutput += std::to_string(expr.variable->positions[i]);
+            pythonOutput += std::to_string(g_variables.vars[expr.var].positions[i]);
             pythonOutput += ",";
         }
-        pythonOutput += std::to_string(expr.variable->positions[expr.variable->positions.size()-1]);
+        pythonOutput += std::to_string(g_variables.vars[expr.var].positions[g_variables.vars[expr.var].positions.size()-1]);
         pythonOutput += "])\n";
     }
 }

@@ -16,7 +16,10 @@ Variable::Variable()
 
 void Variable::concatenate(Variable &other)
 {
-    positions.insert(positions.end(), std::make_move_iterator(other.positions.begin()), std::make_move_iterator(other.positions.end()));
+    for(int p : other.positions)
+    {
+        positions.push_back(p);
+    }
     width += other.width;
 }
 
@@ -24,6 +27,11 @@ void VariableList::push_back(std::string name, uint32_t width)
 {
     vars.insert(std::make_pair(name, Variable(nextPosition, width)));
     nextPosition += width;
+}
+
+void VariableList::push_back(std::string name, Variable var)
+{
+    vars.insert(std::make_pair(name, var));
 }
 
 bool VariableList::exists(std::string name)
@@ -60,8 +68,8 @@ bool GateList::exists(std::string name)
     return gates.find(name) != gates.end();
 }
 
-BinaryExpression::BinaryExpression(Variable *vvar, std::string ggate)
+BinaryExpression::BinaryExpression(std::string vvar, std::string ggate)
 {
-    variable = vvar;
+    var = vvar;
     gate = ggate;
 }
