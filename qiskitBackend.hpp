@@ -12,8 +12,11 @@ private:
 public:
     QiskitBackend(VariableList& g_variables);
     QiskitBackend();
-    void addBinaryExpression(BinaryExpression& expr, VariableList& g_variables, GateList& g_gates);
+    void addBinaryExpression(CircuitExpression& expr, VariableList& g_variables, GateList& g_gates);
     void printOutput();
+
+private:
+    void CreatePythonStatement(std::vector<int> positions, std::string gate);
 };
 
 #endif

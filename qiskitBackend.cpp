@@ -13,31 +13,51 @@ QiskitBackend::QiskitBackend(VariableList &g_variables)
 
 QiskitBackend::QiskitBackend() {}
 
-void QiskitBackend::addBinaryExpression(BinaryExpression &expr, VariableList &g_variables, GateList &g_gates)
+void QiskitBackend::addBinaryExpression(CircuitExpression &expr, VariableList &g_variables, GateList &g_gates)
 {
     // Handle the default gates that come with Qiskit
-    if (expr.gate == "H" || expr.gate == "X" || expr.gate == "Y" || expr.gate == "Z")
+    if (expr.gate == "H" || expr.gate == "X" || expr.gate == "Y" || expr.gate == "Z" || expr.gate == "CX")
+    {
+        CreatePythonStatement(g_variables.vars[expr.var].positions, expr.gate);
+    }
+    else
+    {
+        //go through each Gatestatment and make a corresponding circuit statement for it and then have the backend handle that circuitstatment
+        for (GateExpression e : g_gates.gates[expr.gate].statements)
+        {
+            std::vector<int> realPositions;
+            for(int p : e.vars)
+            {
+                realPositions.push_back(g_variables.vars[expr.var].positions[p]);
+            }
+            CreatePythonStatement(realPositions, e.gate);
+        }
+    }
+}
+
+void QiskitBackend::CreatePythonStatement(std::vector<int> positions, std::string gate)
+{
+    if (gate == "H" || gate == "X" || gate == "Y" || gate == "Z")
     {
         std::string c;
-        c.push_back(tolower(expr.gate[0]));
-
-        for (int p : g_variables.vars[expr.var].positions)
+        c.push_back(tolower(gate[0]));
+        for (int p : positions)
         {
             pythonOutput += "qc." + c;
             pythonOutput += "(" + std::to_string(p) + ")\n";
         }
     }
-    if (expr.gate == "CX")
+    else if (gate == "CX")
     {
-        pythonOutput += "qc.append(XGate().control(" + std::to_string(g_variables.vars[expr.var].width - 1) + "),";
+        pythonOutput += "qc.append(XGate().control(" + std::to_string(positions.size() - 1) + "),";
         pythonOutput += "[";
 
-        for (int i = 0; i < g_variables.vars[expr.var].positions.size() - 1; i++)
+        for (int i = 0; i < positions.size() - 1; i++)
         {
-            pythonOutput += std::to_string(g_variables.vars[expr.var].positions[i]);
+            pythonOutput += std::to_string(positions[i]);
             pythonOutput += ",";
         }
-        pythonOutput += std::to_string(g_variables.vars[expr.var].positions[g_variables.vars[expr.var].positions.size()-1]);
+        pythonOutput += std::to_string(positions[positions.size() - 1]);
         pythonOutput += "])\n";
     }
 }

@@ -27,31 +27,41 @@ public:
     uint32_t size();
 };
 
+struct CircuitExpression
+{
+    std::string var;
+    std::string gate;
+
+    CircuitExpression(std::string vvar, std::string ggate);
+};
+
+struct GateExpression
+{
+    std::vector<int> vars;
+    std::string gate;
+
+    GateExpression();
+    GateExpression(int vvar, std::string ggate);
+    void addVar(int var);
+    bool isSingleInput();
+};
+
 class Gate 
 {
 public:
-    uint32_t numInputs;
-    bool unboundedInputs;
-
+    uint32_t numInputs = 0;
+    std::vector<GateExpression> statements;
+    Gate();
     Gate(uint32_t nnumInputs);
-    Gate(bool unbounded);
 };
 
 class GateList
 {
 public:
-    std::map<std::string, Gate> gates;
     GateList();
+    std::map<std::string, Gate> gates;
     bool exists(std::string name);
-};
-
-
-struct BinaryExpression
-{
-    std::string var;
-    std::string gate;
-
-    BinaryExpression(std::string vvar, std::string ggate);
+    void push_back(std::string name, Gate gate);
 };
 
 #endif

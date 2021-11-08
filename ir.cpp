@@ -44,14 +44,11 @@ uint32_t VariableList::size()
     return nextPosition;
 }
 
+Gate::Gate() {}
+
 Gate::Gate(uint32_t nnumInputs)
 {
     numInputs = nnumInputs;
-}
-
-Gate::Gate(bool unbounded)
-{
-    unboundedInputs = unbounded;
 }
 
 GateList::GateList()
@@ -63,13 +60,39 @@ GateList::GateList()
     gates.insert(std::make_pair("CX", Gate(true)));
 }
 
+void GateList::push_back(std::string name, Gate gate)
+{
+    gates.insert(std::make_pair(name, gate));
+}
+
 bool GateList::exists(std::string name)
 {
     return gates.find(name) != gates.end();
 }
 
-BinaryExpression::BinaryExpression(std::string vvar, std::string ggate)
+CircuitExpression::CircuitExpression(std::string vvar, std::string ggate)
 {
     var = vvar;
     gate = ggate;
+}
+
+GateExpression::GateExpression()
+{
+
+}
+
+GateExpression::GateExpression(int vvar, std::string ggate)
+{
+    addVar(vvar);
+    gate = ggate;
+}
+
+bool GateExpression::isSingleInput()
+{
+    return vars.size() == 1;
+}
+
+void GateExpression::addVar(int var)
+{
+    vars.push_back(var);
 }

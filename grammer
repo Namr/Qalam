@@ -13,7 +13,10 @@ INIT_QBIT -> "=" qbit_literal
              | epcilon
 
 
-STATEMENT -> identifier "->" identifier NEXTGATE
+STATEMENT -> number SPECIFIER
+
+SPECIFIER -> "->" number NEXTGATE
+            | ,number SPECIFIER
 
 NEXTGATE -> "->" STATEMENT
             | epcilon

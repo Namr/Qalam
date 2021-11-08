@@ -11,7 +11,7 @@ VariableList g_variables;
 GateList g_gates;
 QiskitBackend g_backend;
 
-std::vector<BinaryExpression> statements;
+std::vector<CircuitExpression> statements;
 
 void error(std::string error)
 {
@@ -44,7 +44,7 @@ void nextGate(Lexer &lex, std::string var)
         if (!g_gates.exists(gateName))
             error(gateName + " is a non-defined quantum gate");
 
-        statements.push_back(BinaryExpression(var, gateName));
+        statements.push_back(CircuitExpression(var, gateName));
         nextGate(lex, var);
     }
     else if (lex.peek().t == SemiColon)
@@ -73,7 +73,7 @@ void specifier(Lexer &lex, std::string var)
         if (!g_gates.exists(gateName))
             error(gateName + " is an undefined quantum gate");
 
-        statements.push_back(BinaryExpression(var, gateName));
+        statements.push_back(CircuitExpression(var, gateName));
 
         nextGate(lex, var);
     }
@@ -85,7 +85,7 @@ void specifier(Lexer &lex, std::string var)
             error(var2 + " is a variable that was never defined.");
 
         std::string combinedVarName = var + var2;
-        if(!g_variables.exists(combinedVarName))
+        if (!g_variables.exists(combinedVarName))
         {
             Variable combinedVar;
             combinedVar.concatenate(g_variables.vars[var]);
@@ -102,7 +102,7 @@ void specifier(Lexer &lex, std::string var)
         int index = stoi(sIndex);
 
         std::string singleVarName = var + sIndex;
-        if(!g_variables.exists(singleVarName))
+        if (!g_variables.exists(singleVarName))
         {
             Variable singleVar(g_variables.vars[var].positions[0] + index, 1);
             g_variables.push_back(singleVarName, singleVar);
@@ -128,17 +128,28 @@ void statement(Lexer &lex)
     specifier(lex, varName);
 }
 
-void gateNextGate(Lexer &lex)
+void gateNextGate(Lexer &lex, std::string gateName, int var)
 {
     /*
     NEXTGATE -> "->" identifier NEXTGATE;
             | ;
     */
+    Gate *gate = &g_gates.gates[gateName];
+
     if (lex.peek().t == ForwardArrow)
     {
+        //THIS PROBABLY DOESNT WORK!!!!!!!!!!!!!!!! NEEDS TESTING
         match(lex, ForwardArrow);
-        match(lex, Identifier);
-        gateNextGate(lex);
+        std::string statementGate = match(lex, Identifier);
+        if (!g_gates.exists(statementGate))
+            error(statementGate + " is a non-defined quantum gate");
+        
+        GateExpression clone; 
+        clone.vars = gate->statements[gate->statements.size() - 1].vars;
+        clone.gate = statementGate;
+
+        gate->statements.push_back(clone);
+        gateNextGate(lex, gateName, var);
     }
     else if (lex.peek().t == SemiColon)
     {
@@ -150,23 +161,65 @@ void gateNextGate(Lexer &lex)
     }
 }
 
-void gateStatement(Lexer &lex)
+void gateSpecifier(Lexer &lex, std::string gateName, int var)
 {
-    //STATEMENT -> identifier "->" identifier NEXTGATE
-    match(lex, Identifier);
-    match(lex, ForwardArrow);
-    match(lex, Identifier);
-    gateNextGate(lex);
+    Gate *gate = &g_gates.gates[gateName];
+
+    //SPECIFIER -> "->" NEXTGATE
+    //        | ,number SPECIFIER
+
+    if (lex.peek().t == ForwardArrow)
+    {
+        match(lex, ForwardArrow);
+
+        //second must be a gate
+        std::string statementGate = match(lex, Identifier);
+        if (!g_gates.exists(statementGate))
+            error(statementGate + " is an undefined quantum gate");
+
+        gate->statements[gate->statements.size() - 1].vars.push_back(var);
+        gate->statements[gate->statements.size() - 1].gate = statementGate;
+
+        gateNextGate(lex, gateName, var);
+    }
+    else if (lex.peek().t == Comma)
+    {
+        match(lex, Comma);
+        std::string sInput2 = match(lex, Number);
+        int var2 = stoi(sInput2);
+        if (var2 > gate->numInputs || var2 < 0)
+            error(std::to_string(var2) + " is an invalid input to gate " + gateName);
+
+        gate->statements[gate->statements.size() - 1].vars.push_back(var);
+
+        gateSpecifier(lex, gateName, var2);
+    }
 }
 
-void gatebody(Lexer &lex)
+void gateStatement(Lexer &lex, std::string gateName)
+{
+    //STATEMENT -> number SPECIFIER
+    //first identifier must be a valid number
+    std::string sInput = match(lex, Number);
+    int var = stoi(sInput);
+    
+    if (var > g_gates.gates[gateName].numInputs || var < 0)
+        error(std::to_string(var) + " is an out of bounds input for the Gate " + gateName);
+
+    //create a placeholder gate expression that will be populated by recursive calls
+    g_gates.gates[gateName].statements.push_back(GateExpression());
+
+    gateSpecifier(lex, gateName, var);
+}
+
+void gatebody(Lexer &lex, std::string gateName)
 {
     //GATEBODY -> '{' {STATEMENT} '}'
 
     match(lex, OpenBody);
     while (lex.peek().t != CloseBody)
     {
-        gateStatement(lex);
+        gateStatement(lex, gateName);
     }
     match(lex, CloseBody);
 }
@@ -186,9 +239,10 @@ void definition(Lexer &lex, std::string name)
     else if (lex.peek().t == BackArrow)
     {
         match(lex, BackArrow);
-        match(lex, Number);
+        std::string inputSize = match(lex, Number);
         match(lex, Equals);
-        gatebody(lex);
+        g_gates.push_back(name, Gate(stoi(inputSize)));
+        gatebody(lex, name);
     }
     else
     {
@@ -255,7 +309,7 @@ int main()
 
         //backend generation
         g_backend = QiskitBackend(g_variables);
-        for (BinaryExpression e : statements)
+        for (CircuitExpression e : statements)
         {
             g_backend.addBinaryExpression(e, g_variables, g_gates);
         }
