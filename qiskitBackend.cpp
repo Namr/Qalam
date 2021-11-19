@@ -62,7 +62,7 @@ void QiskitBackend::CreatePythonStatement(std::vector<int> positions, std::strin
     }
 }
 
-void QiskitBackend::printOutput()
+std::string QiskitBackend::getOutput()
 {
-    std::cout << pythonOutput;
+    return pythonOutput;
 }

@@ -13,7 +13,7 @@ public:
     QiskitBackend(VariableList& g_variables);
     QiskitBackend();
     void addBinaryExpression(CircuitExpression& expr, VariableList& g_variables, GateList& g_gates);
-    void printOutput();
+    std::string getOutput();
 
 private:
     void CreatePythonStatement(std::vector<int> positions, std::string gate);
