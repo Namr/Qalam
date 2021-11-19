@@ -263,11 +263,37 @@ void definitionStatements(Lexer &lex)
     match(lex, SemiColon);
 }
 
-int main()
+int main(int argc, char** argv)
 {
+    char* filename = NULL;
+    char* outputFile = "qalam_output.py";
+
+    for(int i = 1; i < argc; i++)
+    {
+        if(strcmp(argv[i],"-o") == 0)
+        {
+            if (argc > i)
+                i++;
+            else
+                error("-o specified but no output file is given");
+            
+            outputFile = argv[i];
+        }
+        else
+        {
+            filename = argv[i];
+        }
+    }
+
+    if(filename == NULL)
+    {
+        std::cout << "ERROR: invalid arguments" << std::endl;
+        std::cout << "USAGE: qalam [OPTIONS] filename" << std::endl;
+    }
+
     //open source file
     std::ifstream qalamInput;
-    qalamInput.open("test.qlm");
+    qalamInput.open(filename);
     if (qalamInput.is_open())
     {
         std::string line;
@@ -313,7 +339,15 @@ int main()
         {
             g_backend.addBinaryExpression(e, g_variables, g_gates);
         }
-        g_backend.printOutput();
+        std::ofstream qalamOutput(outputFile);
+        if(qalamOutput.is_open())
+        {
+            qalamOutput << g_backend.getOutput();
+        }
+        else
+        {
+            error("can't create output file");
+        }
     }
     else
     {

@@ -1,0 +1,16 @@
+given:
+input: 12;
+A: 1;
+XORString <- 13 =
+{
+    0, 12 -> CX;
+    3, 12 -> CX;
+    8, 12 -> CX;
+};
+circuit:
+input -> H;
+A -> X -> H;
+input, A -> XORString;
+input -> H;
+
+
