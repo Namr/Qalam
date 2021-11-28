@@ -13,7 +13,7 @@ qalamc -o my_output_file.py ./examples/BV.qlm
 `qalamc` also supports input from [Quirk's](https://algassert.com/quirk) JSON files. After creating a circuit in Quirk go to `Export` in the top left and then click `Copy to Clipboard` under the heading `Circuit JSON`. You will need to take the copied JSON and save that into a file. Then you can use the `-q` option to turn this JSON into Qiskit Python code. An example command would be:
 
 ```
-qalamc -g ./examples/BV-Quirk.qlm -o quirkTest.py
+qalamc -q ./examples/BV-Quirk.json -o quirkTest.py
 ```
 
 ## Building
