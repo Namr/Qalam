@@ -64,4 +64,9 @@ public:
     void push_back(std::string name, Gate gate);
 };
 
+//declare global IR variables
+extern VariableList g_variables;
+extern GateList g_gates;
+extern std::vector<CircuitExpression> g_statements;
+
 #endif
