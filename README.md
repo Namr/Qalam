@@ -16,6 +16,17 @@ qalamc -o my_output_file.py ./examples/BV.qlm
 qalamc -g ./examples/BV-Quirk.qlm -o quirkTest.py
 ```
 
+## Building
+Qalam can easily be built using CMake. It has no external dependencies. The following set of commands can be used to build:
+```
+mkdir build
+cd build
+cmake ..
+make
+```
+
+This creates the executable `qalamc` in the build directory. You can add this to your `/bin` or just use it from the build directory (keep in mind when using the example commands above that filepaths are relative to where you are in your filesystem).
+
 ## Examples & Syntax
 
 In the examples folder some famous quantum algorithms have been implemented in Qalam. This is a good way to get familiar with the syntax of the language. Here is a quick overview of the syntax:
