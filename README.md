@@ -1,5 +1,5 @@
 # Qalam: A Quantum Shader Language
-Quantum computers are a powerful new computational tools that are vastly different from classical computers. Qalam is a programming language that recognizes these differences. Programs more closely resemble quantum circuit diagrams rather than classical computer programs. This allows the programmer to spend less time converting between the circuit diagram syntax and the language syntax. It also helps to avoid conflating classical computing approaches with quantum computing approaches.
+Quantum computers are a powerful new computational tool that are vastly different from classical computers. Qalam is a programming language that recognizes these differences. Programs more closely resemble quantum circuit diagrams rather than classical computer programs. This allows the programmer to spend less time converting between the circuit diagram syntax and the language syntax. It also helps to avoid conflating classical computing approaches with quantum computing approaches.
 
 ## Usage
 
