@@ -1,5 +1,5 @@
 # Qalam: A Quantum Shader Language
-Quantum computers are a powerful new computational tools that are vastly different from classical computers. Qalam is a programming language that recognizes these differences. Programs more closely resemble quantum circuit diagrams rather than classical computer programs. This allows the programmer to spend less time converting between the circuit diagram syntax and the language syntax. It also helps to avoid conflating classical computing approaches with quantum computing approaches.
+Quantum computers are a powerful new computational tool that are vastly different from classical computers. Qalam is a programming language that recognizes these differences. Programs more closely resemble quantum circuit diagrams rather than classical computer programs. This allows the programmer to spend less time converting between the circuit diagram syntax and the language syntax. It also helps to avoid conflating classical computing approaches with quantum computing approaches.
 
 ## Usage
 
@@ -15,6 +15,17 @@ qalamc -o my_output_file.py ./examples/BV.qlm
 ```
 qalamc -g ./examples/BV-Quirk.qlm -o quirkTest.py
 ```
+
+## Building
+Qalam can easily be built using CMake. It has no external dependencies. The following set of commands can be used to build:
+```
+mkdir build
+cd build
+cmake ..
+make
+```
+
+This creates the executable `qalamc` in the build directory. You can add this to your `/bin` or just use it from the build directory (keep in mind when using the example commands above that filepaths are relative to where you are in your filesystem).
 
 ## Examples & Syntax
 
