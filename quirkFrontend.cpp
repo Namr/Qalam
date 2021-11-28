@@ -10,12 +10,12 @@ void Quirk::parseJSON(std::string filename)
 
     //how many qbits
     size_t numQbits = 0;
+    std::vector<std::vector<std::string>> jsonGates;
 
     std::ifstream quirkInput;
     quirkInput.open(filename);
     if (quirkInput.is_open())
     {
-
         //////////////////////////////////////////////////////////////////////
         //these characters should be at the start of every quirk input file//
         /////////////////////////////////////////////////////////////////////
@@ -37,8 +37,9 @@ void Quirk::parseJSON(std::string filename)
 
             //keep track of which qbit we're on
             size_t index = 0;
+            std::vector<std::string> col;
 
-            //loop and extract which gates need to be used for each Qbit
+            //loop and extract which gates need to be used for each Qbit in this col
             while(true)
             {
                 std::getline(quirkInput, line);
@@ -48,7 +49,7 @@ void Quirk::parseJSON(std::string filename)
                 if(std::regex_search(line, matches, gateRStr))
                 {
                     //add gate to IR
-                    std::cout << matches[1] << " ";
+                    col.push_back(matches[1]);
                 }
                 else if(!std::regex_search(line, emptyRStr))
                 {
@@ -57,7 +58,7 @@ void Quirk::parseJSON(std::string filename)
                 }
                 else
                 {
-                    std::cout << 1 << " ";
+                    col.push_back("1");
                 }
 
                 index++;
@@ -71,7 +72,7 @@ void Quirk::parseJSON(std::string filename)
             if(numQbits < index)
                 numQbits = index;
             
-            std::cout << numQbits << std::endl;
+            jsonGates.push_back(col);
 
             //check if we need to leave the loop (i.e no more cols to process)
             std::getline(quirkInput, line);
@@ -94,5 +95,31 @@ void Quirk::parseJSON(std::string filename)
         std::getline(quirkInput, line);
         if(line != "}")
             error("Malformed Quirk JSON input, end characters invalid");
+    }
+
+
+    //////////////////////////////
+    //Init all of our qbit lines//
+    /////////////////////////////
+    for(int i = 0; i < numQbits; i++)
+    {
+        g_variables.push_back(std::to_string(i), 1);
+    }
+
+    
+    //////////////////////////
+    //Add gates into the IR//
+    /////////////////////////
+    for(std::vector<std::string> col : jsonGates)
+    {
+        int index = 0;
+        for(std::string gate : col)
+        {
+            if(gate != "1")
+            {
+                g_statements.push_back(CircuitExpression(std::to_string(index), gate));
+            }
+            index++;
+        }
     }
 }
