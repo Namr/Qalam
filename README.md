@@ -5,7 +5,16 @@ Quantum computers are a powerful new computational tools that are vastly differe
 
 `qalamc` is the compiler for the language, it will take a qalam source file (which usually have the extension `.qlm`) and outputs a Qiskit powered Python file. In order to run these files you should have Qiskit installed on your system. By default, the output file is called `qalam_output.py`. This can be changed using the `-o` command line argument. Here an example usage of `qalamc`:
 
-`qalamc -o my_output_file.py ./examples/BV.qlm`
+```
+qalamc -o my_output_file.py ./examples/BV.qlm
+```
+
+### Usage with Quirk JSON export
+`qalamc` also supports input from [Quirk's](https://algassert.com/quirk) JSON files. After creating a circuit in Quirk go to `Export` in the top left and then click `Copy to Clipboard` under the heading `Circuit JSON`. You will need to take the copied JSON and save that into a file. Then you can use the `-q` option to turn this JSON into Qiskit Python code. An example command would be:
+
+```
+qalamc -g ./examples/BV-Quirk.qlm -o quirkTest.py
+```
 
 ## Examples & Syntax
 

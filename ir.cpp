@@ -1,5 +1,10 @@
 #include "ir.hpp"
 
+//define global IR variables
+VariableList g_variables;
+GateList g_gates;
+std::vector<CircuitExpression> g_statements;
+
 Variable::Variable(uint32_t pposition, uint32_t wwidth)
 {
     width = wwidth;
