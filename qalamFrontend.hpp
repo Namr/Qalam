@@ -1,14 +1,11 @@
 #ifndef QALAMFRONTEND_H
 #define QALAMFRONTEND_H
 
-#include <iostream>
-#include <fstream>
 #include <string>
 #include <vector>
 
 #include "lexer.hpp"
 #include "ir.hpp"
-#include "qiskitBackend.hpp"
 
 void error(std::string error);
 
