@@ -16,6 +16,8 @@ qalamc -o my_output_file.py ./examples/BV.qlm
 qalamc -q ./examples/BV-Quirk.json -o quirkTest.py
 ```
 
+Please note that Quirk support is limited so far, and Qalam only supports a subset of the gates and features of the full Quirk editor.
+
 ## Building
 Qalam can easily be built using CMake. It has no external dependencies. The following set of commands can be used to build:
 ```
