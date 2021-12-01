@@ -1,0 +1,34 @@
+given:
+variable: 4;
+clause: 4;
+out: 1;
+halfOracle <- 8 =
+{
+    0, 4 -> CX;
+    1, 5 -> CX;
+    2, 4 -> CX;
+    3, 5 -> CX;
+    0, 6 -> CX;
+    1, 7 -> CX;
+    3, 6 -> CX;
+    2, 7 -> CX;
+};
+circuit:
+variable -> H;
+variable, clause -> halfOracle;
+clause, out -> CX;
+variable, clause -> halfOracle;
+variable -> H -> X;
+variable[3] -> H;
+variable -> CX;
+variable[3] -> H;
+variable -> X -> H;
+
+variable, clause -> halfOracle;
+clause, out -> CX;
+variable, clause -> halfOracle;
+variable -> H -> X;
+variable[3] -> H;
+variable -> CX;
+variable[3] -> H;
+variable -> X -> H;
